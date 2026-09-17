@@ -33,12 +33,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(uploadDir));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Supabase PostgreSQL Pool Configuration
 const { Pool } = pg;
+
+if (!process.env.DATABASE_URL) {
+  console.error("CRITICAL ERROR: DATABASE_URL environment variable is not defined!");
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes("localhost")
-    ? false
-    : { rejectUnauthorized: false }
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 async function db(sql, params = []) {
